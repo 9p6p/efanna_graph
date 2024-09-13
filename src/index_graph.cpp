@@ -267,7 +267,9 @@ void IndexGraph::Build(size_t n, const float* data, const Parameters& parameters
     data_ = data;
     assert(initializer_->HasBuilt());
 
+    std::cout << "begin init" << std::endl;
     InitializeGraph(parameters);
+    std::cout << "begin nndescent" << std::endl;
     NNDescent(parameters);
     // RefineGraph(parameters);
 
