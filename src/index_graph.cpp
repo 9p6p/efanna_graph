@@ -278,11 +278,15 @@ void IndexGraph::Build(size_t n, const float* data, const Parameters& parameters
     unsigned K = parameters.Get<unsigned>("K");
     for (unsigned i = 0; i < nd_; i++) {
         std::vector<unsigned> tmp;
-        std::sort(graph_[i].pool.begin(), graph_[i].pool.end());
-        for (unsigned j = 0; j < K; j++) {
-            tmp.push_back(graph_[i].pool[j].id);
-        }
         tmp.reserve(K);
+        std::sort(graph_[i].pool.begin(), graph_[i].pool.end());
+        unsigned j = 0;
+        while (tmp.size() < K && j < graph_[i].pool.size()) {
+            unsigned cur_id = graph_[i].pool[j].id;
+            if (cur_id >= nd_) continue;
+            tmp.push_back(cur_id);
+            j++;
+        }
         final_graph_.push_back(tmp);
         std::vector<Neighbor>().swap(graph_[i].pool);
         std::vector<unsigned>().swap(graph_[i].nn_new);
