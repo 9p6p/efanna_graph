@@ -5,6 +5,7 @@
 #include <efanna2e/index_graph.h>
 #include <efanna2e/index_random.h>
 #include <efanna2e/util.h>
+#include <omp.h>
 
 void load_data(char* filename, float*& data, unsigned& num, unsigned& dim) {  // load data with sift10K pattern
     std::ifstream in(filename, std::ios::binary);
@@ -54,7 +55,8 @@ int main(int argc, char** argv) {
         std::cout << argv[0] << " data_file save_graph K L iter S R" << std::endl;
         exit(-1);
     }
-
+    int max_threads = omp_get_max_threads();
+    printf("默认线程数: %d\n", max_threads);
     // float* data_load = NULL;
     unsigned points_num, dim;
     float* data_load = read_bin<float>(argv[1], points_num, dim);
@@ -68,7 +70,9 @@ int main(int argc, char** argv) {
     unsigned R = (unsigned)atoi(argv[7]);
     // data_load = efanna2e::data_align(data_load, points_num, dim);//one must align the data before build
     efanna2e::IndexRandom init_index(dim, points_num);
-    efanna2e::IndexGraph index(dim, points_num, efanna2e::L2, (efanna2e::Index*)(&init_index));
+
+    //efanna2e::IndexGraph index(dim, points_num, efanna2e::L2, (efanna2e::Index*)(&init_index));
+    efanna2e::IndexGraph index(dim, points_num, efanna2e::INNER_PRODUCT, (efanna2e::Index*)(&init_index));
 
     efanna2e::Parameters paras;
     paras.Set<unsigned>("K", K);
@@ -77,6 +81,7 @@ int main(int argc, char** argv) {
     paras.Set<unsigned>("S", S);
     paras.Set<unsigned>("R", R);
 
+    omp_set_num_threads(12);
     auto s = std::chrono::high_resolution_clock::now();
     index.Build(points_num, data_load, paras);
     auto e = std::chrono::high_resolution_clock::now();
