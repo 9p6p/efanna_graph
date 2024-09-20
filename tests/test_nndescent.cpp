@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         exit(-1);
     }
     int max_threads = omp_get_max_threads();
-    printf("默认线程数: %d\n", max_threads);
+    printf("默认线程数: %d + 可使用线程数：%d\n", max_threads, omp_get_num_procs());
     // float* data_load = NULL;
     unsigned points_num, dim;
     float* data_load = read_bin<float>(argv[1], points_num, dim);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     paras.Set<unsigned>("S", S);
     paras.Set<unsigned>("R", R);
 
-    omp_set_num_threads(12);
+    omp_set_num_threads(omp_get_num_procs());
     auto s = std::chrono::high_resolution_clock::now();
     index.Build(points_num, data_load, paras);
     auto e = std::chrono::high_resolution_clock::now();
